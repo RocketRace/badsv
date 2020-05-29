@@ -1,7 +1,7 @@
 mod dsv;
 mod encodings;
 
-use clap::{App, Arg, crate_version, crate_authors};
+use clap::{App, Arg, ArgGroup, crate_version, crate_authors};
 
 fn main() {
     // Command line arguments
@@ -13,7 +13,12 @@ fn main() {
             Arg::from_usage("convert -c --convert 'Convert a DSV file into a BadSV file'")
         )
         .arg(
-            Arg::from_usage("regress -r --regress 'Convert a BadSV file into a DSV file (ew)'")
+            Arg::from_usage("regress -r --regress 'Convert a BadSV file into a DSV file (why would you do this)'")
+        )
+        .group(
+            ArgGroup::with_name("action")
+                .required(true)
+                .args(&["convert", "regress"])
         )
         .arg(
             Arg::from_usage("-s --source-encoding=[ENCODING] 'The encoding of the original file [Default: utf-8]'")
