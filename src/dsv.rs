@@ -17,7 +17,7 @@ pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
     out
 }
 
-// Turns a grid of items into a stream of bytes.
+/// Compiles a grid of items into a stream of bytes.
 pub fn compile(data: &[&[&str]], delimiter: u8) -> Vec<u8> {
     let mut writer = csv::WriterBuilder::new()
         .delimiter(delimiter)
