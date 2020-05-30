@@ -15,10 +15,13 @@ fn main() {
         .arg(
             Arg::from_usage("regress -r --regress 'Convert a BadSV file into a DSV file (why would you do this)'")
         )
+        .arg(
+            Arg::from_usage("list-encodings -l --list-encodings 'Lists valid BadSV encodings'")
+        )
         .group(
             ArgGroup::with_name("action")
                 .required(true)
-                .args(&["convert", "regress"])
+                .args(&["convert", "regress", "list-encodings"])
         )
         .arg(
             Arg::from_usage("-s --source-encoding=[ENCODING] 'The encoding of the original file [Default: utf-8]'")
@@ -34,9 +37,6 @@ fn main() {
         )
         .arg(
             Arg::from_usage("[output] 'Output file'")
-        )
-        .arg(
-            Arg::from_usage("list-encodings -l --list-encodings 'Lists valid BadSV encodings'")
         )
         .get_matches();
 
