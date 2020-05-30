@@ -16,3 +16,17 @@ pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
         .collect::<Vec<Vec<String>>>();
     out
 }
+
+// Turns a grid of items into a stream of bytes.
+pub fn compile(data: &[&[&str]], delimiter: u8) -> Vec<u8> {
+    let mut writer = csv::WriterBuilder::new()
+        .delimiter(delimiter)
+        .from_writer(Vec::new());
+
+    for record in data {
+        writer.write_record(*record).unwrap();
+    }
+
+    writer.into_inner().unwrap()
+    // All these unwrap()s are justified because I say so
+}
