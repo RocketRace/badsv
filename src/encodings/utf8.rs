@@ -1,7 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
-const INVALID_UTF8_BYTES: [u8; 77] = [
+const INVALID_UTF8_START_BYTES: [u8; 77] = [
     // Bytes that are invalid anywhere in a utf-8 string
     0xc0, 0xc1,
     0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff, 
@@ -18,7 +18,7 @@ const INVALID_UTF8_BYTES: [u8; 77] = [
 
 /// Generates a random invalid utf-8 byte
 pub fn get_delimiter() -> u8 {
-    *INVALID_UTF8_BYTES.choose(&mut thread_rng()).unwrap()
+    *INVALID_UTF8_START_BYTES.choose(&mut thread_rng()).unwrap()
 }
 
 /// Decode bytes from a utf-8 String as far as possible
