@@ -1,4 +1,5 @@
 mod utf8;
+mod utf16_le;
 
 use std::fs::File;
 use std::io::Read;
@@ -50,7 +51,7 @@ pub fn compile(data: Vec<Vec<String>>, encoding: &str) -> Vec<u8> {
         for (i, word) in record.iter().enumerate() {
             out.extend(encode(word));
             if i < record.len() - 1 {
-                out.push(get_delimiter());
+                out.extend(get_delimiter());
             }
         }
         for _ in 0..(bytes_per - 1) {

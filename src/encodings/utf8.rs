@@ -19,8 +19,8 @@ const INVALID_UTF8_START_BYTES: [u8; 77] = [
 ];
 
 /// Generates a random invalid utf-8 byte
-pub fn get_delimiter() -> u8 {
-    *INVALID_UTF8_START_BYTES.choose(&mut thread_rng()).unwrap()
+pub fn get_delimiter() -> Vec<u8> {
+    vec![*INVALID_UTF8_START_BYTES.choose(&mut thread_rng()).unwrap()]
 }
 
 /// Decode bytes from a utf-8 String as far as possible
