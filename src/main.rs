@@ -5,8 +5,6 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 use clap::{App, Arg, ArgGroup, crate_version, crate_authors};
 
-const VALID_ENCODINGS: [&str; 2] = ["utf-8", "utf-16"];
-
 fn main() {
     // Command line arguments
     let args = App::new("BadSV File Converter")
@@ -28,13 +26,10 @@ fn main() {
                 .args(&["convert", "regress", "list-encodings"])
         )
         .arg(
-            Arg::from_usage("-s --source-encoding=[ENCODING] 'The encoding of the original file [Default: utf-8]'")
+            Arg::from_usage("encoding -e --encoding=[ENCODING] 'The flavor of BadSV used [Default: utf-8]'")
         )
         .arg(
-            Arg::from_usage("-t --target-encoding=[ENCODING] 'The encoding of the resulting file [Default: utf-8]'")
-        )
-        .arg(
-            Arg::from_usage("-d --delimiter=[DELIMITER] 'The delimiters used in the DSV file [Default: ,]'")
+            Arg::from_usage("delimiter -d --delimiter=[DELIMITER] 'The delimiters used in the DSV file [Default: ,]'")
         )
         .arg(
             Arg::from_usage("[input] 'Input file'")
@@ -44,13 +39,12 @@ fn main() {
         )
         .get_matches();
 
-    let source_encoding = args.value_of("source-encoding").unwrap_or("utf-8");
-    let target_encoding = args.value_of("target-encoding").unwrap_or("utf-8");
+    let encoding = args.value_of("encoding").unwrap_or("utf-8");
     let delimiter = args.value_of("delimiter").unwrap_or(",");
     
     if args.is_present("list-encodings") {
         println!("Valid BadSV encodings:");
-        for encoding in VALID_ENCODINGS.iter() {
+        for encoding in encodings::VALID_ENCODINGS.iter() {
             println!("* {}", encoding);
         }
     }
@@ -61,12 +55,8 @@ fn main() {
                     Ok(f) => f,
                     Err(_) => panic!("Error opening file.")
                 };
-                let del = match validate_delimiter(delimiter) {
-                    Some(d) => d,
-                    None => panic!("Delimiter must be exactly 1 byte")
-                };
                 let data = dsv::parse(file, del);
-                let out = encodings::compile(data, target_encoding);
+                let out = encodings::compile(data, encoding);
                 write(&out, &output);
             }
             else {
@@ -84,11 +74,7 @@ fn main() {
                     Ok(f) => f,
                     Err(_) => panic!("Error opening file.")
                 };
-                let del = match validate_delimiter(delimiter) {
-                    Some(d) => d,
-                    None => panic!("Delimiter must be exactly 1 byte")
-                };
-                let data = encodings::parse(&mut file, source_encoding);
+                let data = encodings::parse(&mut file, encoding);
                 let out = dsv::compile(data, del);
                 write(&out, &output);
             }

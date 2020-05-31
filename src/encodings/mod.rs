@@ -1,12 +1,14 @@
-pub mod utf8;
+mod utf8;
 
 use std::fs::File;
 use std::io::Read;
 
+pub const VALID_ENCODINGS: [&str; 2] = ["utf-8", "utf-16"];
+
 /// Parses BadSV in the flavor provided
 pub fn parse(data: &mut File, encoding: &str) -> Vec<Vec<String>> {
-    let try_decode = match encoding {
-        "utf-8" => utf8::try_decode,
+    let (try_decode, bytes_per) = match encoding {
+        "utf-8" => (utf8::try_decode, utf8::MIN_BYTES),
         _ => panic!("Invalid encoding supplied")
     };
 
@@ -18,12 +20,12 @@ pub fn parse(data: &mut File, encoding: &str) -> Vec<Vec<String>> {
     let mut out: Vec<Vec<String>> = Vec::new();
     let mut record: Vec<String> = Vec::new();
     let mut buffer: Vec<u8> = Vec::new();
-    for byte in bytes {
-        buffer.push(byte);
+    for chunk in bytes.chunks(bytes_per) {
+        buffer.extend(chunk);
         match try_decode(&buffer) {
             Ok(s) =>  {
-                // If a line break byte is DECODED INTO a line break char
-                if s.ends_with('\n') && byte == '\n' as u8 {
+                // If a line break character is recognized
+                if s.ends_with('\n') && chunk[chunk.len() - 1] == '\n' as u8 {
                     out.push(record.clone());
                     record.clear();
                 }
@@ -39,17 +41,20 @@ pub fn parse(data: &mut File, encoding: &str) -> Vec<Vec<String>> {
 
 /// Compiles a grid into a stream of BadSV bytes in the flavor provided
 pub fn compile(data: Vec<Vec<String>>, encoding: &str) -> Vec<u8> {
-    let (encode, get_delimiter) = match encoding {
-        "utf-8" => (utf8::encode, utf8::get_delimiter),
+    let (encode, get_delimiter, bytes_per) = match encoding {
+        "utf-8" => (utf8::encode, utf8::get_delimiter, utf8::MIN_BYTES),
         _ => panic!("Invalid encoding supplied")
     };
     let mut out = Vec::new();
     for record in data {
-        for (j, word) in record.iter().enumerate() {
+        for (i, word) in record.iter().enumerate() {
             out.extend(encode(word));
-            if j < record.len() - 1 {
+            if i < record.len() - 1 {
                 out.push(get_delimiter());
             }
+        }
+        for _ in 0..(bytes_per - 1) {
+            out.push(0);
         }
         out.push('\n' as u8) // Sorry, Windows users
     }

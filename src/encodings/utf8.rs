@@ -1,6 +1,8 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+pub const MIN_BYTES: usize = 1;
+
 const INVALID_UTF8_START_BYTES: [u8; 77] = [
     // Bytes that are invalid anywhere in a utf-8 string
     0xc0, 0xc1,
