@@ -1,7 +1,8 @@
 mod dsv;
 mod encodings;
 
-use std::fs::File;
+use std::fs::{File, OpenOptions};
+use std::io::Write;
 use clap::{App, Arg, ArgGroup, crate_version, crate_authors};
 
 const VALID_ENCODINGS: [&str; 2] = ["utf-8", "utf-16"];
@@ -60,7 +61,13 @@ fn main() {
                     Ok(f) => f,
                     Err(_) => panic!("Error opening file.")
                 };
-                let data = dsv::parse(file, delimiter.as_bytes()[0]);
+                let del = match validate_delimiter(delimiter) {
+                    Some(d) => d,
+                    None => panic!("Delimiter must be exactly 1 byte")
+                };
+                let data = dsv::parse(file, del);
+                let out = encodings::compile(data, target_encoding);
+                write(&out, &output);
             }
             else {
                 panic!("Delimiter must be 1 byte in length")
@@ -73,10 +80,17 @@ fn main() {
     else if args.is_present("regress") {
         if let Some((input, output)) = get_io(&args) {
             if let Some(del) = validate_delimiter(delimiter) {
-                let file = match File::open(input) {
+                let mut file = match File::open(input) {
                     Ok(f) => f,
                     Err(_) => panic!("Error opening file.")
                 };
+                let del = match validate_delimiter(delimiter) {
+                    Some(d) => d,
+                    None => panic!("Delimiter must be exactly 1 byte")
+                };
+                let data = encodings::parse(&mut file, source_encoding);
+                let out = dsv::compile(data, del);
+                write(&out, &output);
             }
             else {
                 panic!("Delimiter must be 1 byte in length")
@@ -99,7 +113,7 @@ fn get_io(args: &clap::ArgMatches) -> Option<(String, String)>{
     None
 }
 
-// Ensures the delimiter is one byte in length
+/// Ensures the delimiter is one byte in length
 fn validate_delimiter(delimiter: &str) -> Option<u8> {
     let bytes = delimiter.as_bytes();
     if bytes.len() == 1 {
@@ -108,4 +122,17 @@ fn validate_delimiter(delimiter: &str) -> Option<u8> {
     else {
         None
     }
+}
+
+/// Writes to a file (pretty inane documentation, huh)
+fn write(bytes: &[u8], path: &str) {
+    let mut options = OpenOptions::new();
+    let mut file = match options.write(true).open(path) {
+        Ok(f) => f,
+        Err(_) => panic!("Error opening resulting file")
+    };
+    match file.write(bytes) {
+        Ok(_) => (),
+        Err(_) => panic!("Error writing file")
+    };
 }

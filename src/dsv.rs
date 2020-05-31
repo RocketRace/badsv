@@ -7,6 +7,7 @@ use std::fs::File;
 pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(delimiter)
+        .flexible(true)
         .from_reader(data);
     let out = reader
         .records()
@@ -18,13 +19,14 @@ pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
 }
 
 /// Compiles a grid of items into a stream of bytes.
-pub fn compile(data: &[&[&str]], delimiter: u8) -> Vec<u8> {
+pub fn compile(data: Vec<Vec<String>>, delimiter: u8) -> Vec<u8> {
     let mut writer = csv::WriterBuilder::new()
         .delimiter(delimiter)
+        .flexible(true)
         .from_writer(Vec::new());
 
     for record in data {
-        writer.write_record(*record).unwrap();
+        writer.write_record(record).unwrap();
     }
 
     writer.into_inner().unwrap()
