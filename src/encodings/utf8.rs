@@ -1,6 +1,8 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
+use crate::encodings::{DecodeResult, Encoder, Decoder, Encoding};
+
 pub const MIN_BYTES: usize = 1;
 
 const INVALID_UTF8_START_BYTES: [u8; 77] = [
@@ -18,35 +20,66 @@ const INVALID_UTF8_START_BYTES: [u8; 77] = [
     0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 
 ];
 
-/// Generates a random invalid utf-8 byte
-pub fn get_delimiter() -> Vec<u8> {
-    vec![*INVALID_UTF8_START_BYTES.choose(&mut thread_rng()).unwrap()]
+pub struct Utf8Encoder {
+    size: usize
+}
+pub struct Utf8Decoder {
+    size: usize
 }
 
-/// Decode bytes from a utf-8 String as far as possible
-pub fn try_decode(bytes: &[u8]) -> Result<String, (String, usize)> {
-    let out = String::from_utf8(bytes.to_vec());
-    match out {
-        Ok(s) => Ok(s),
-        Err(why) => {
-            let error = why.utf8_error();
-            let until = error.valid_up_to();
-            // Safe because we've ensured the unchecked bytes are valid already
-            let valid = unsafe {
-                String::from_utf8_unchecked(bytes[..until].to_vec())
-            };
-            if let Some(_) = error.error_len() {
-                Err((valid, until))
-            }
-            else {
-                // Give me more bytes
-                Ok(valid)
+impl Utf8Encoder {
+    pub fn new() -> Self { Utf8Encoder { size: MIN_BYTES } }
+}
+
+impl Utf8Decoder {
+    pub fn new() -> Self { Utf8Decoder { size: MIN_BYTES } }
+}
+
+impl Encoder for Utf8Encoder {
+    /// Encodes a utf-8 string
+    fn encode(&self, data: &str) -> Vec<u8> {
+        data.as_bytes().to_vec()
+    }
+
+    /// Generates a random invalid utf-8 byte
+    fn get_delimiter(&self) -> Vec<u8> {
+        vec![*INVALID_UTF8_START_BYTES.choose(&mut thread_rng()).unwrap()]
+    }
+}
+
+impl Decoder for Utf8Decoder {
+    /// Decode bytes from a utf-8 String as far as possible
+    fn try_decode(&self, bytes: &[u8]) -> DecodeResult {
+        let out = String::from_utf8(bytes.to_vec());
+        match out {
+            Ok(s) => Ok(s),
+            Err(why) => {
+                let error = why.utf8_error();
+                let until = error.valid_up_to();
+                // Safe because we've ensured the unchecked bytes are valid already
+                let valid = unsafe {
+                    String::from_utf8_unchecked(bytes[..until].to_vec())
+                };
+                if let Some(_) = error.error_len() {
+                    Err((valid, until))
+                }
+                else {
+                    // Give me more bytes
+                    Ok(valid)
+                }
             }
         }
     }
 }
 
-/// Encodes a utf-8 string
-pub fn encode(data: &str) -> Vec<u8> {
-    data.as_bytes().to_vec()
+impl Encoding for Utf8Encoder {
+    fn size(&self) -> usize {
+        self.size
+    }
+}
+
+impl Encoding for Utf8Decoder {
+    fn size(&self) -> usize {
+        self.size
+    }
 }
