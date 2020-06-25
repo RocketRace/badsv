@@ -36,7 +36,7 @@ pub fn parse(data: &mut File, encoding: &str) -> Vec<Vec<String>> {
 /// Parses BadSV in the flavor provided
 fn parse_with<E: Decoder + Encoding>(data: &mut File, decoder: E) -> Vec<Vec<String>> {
     let mut bytes = Vec::new();
-    match data.read(&mut bytes) {
+    match data.read_to_end(&mut bytes) {
         Ok(_) => (),
         Err(_) => panic!("Could not read contents of file")
     }
@@ -47,9 +47,10 @@ fn parse_with<E: Decoder + Encoding>(data: &mut File, decoder: E) -> Vec<Vec<Str
         buffer.extend(chunk);
         match decoder.try_decode(&buffer) {
             Ok(s) =>  {
-                // If a line break character is recognized
-                if s.ends_with('\n') && chunk[chunk.len() - 1] == '\n' as u8 {
+                if s.ends_with('\n') {
+                    record.push(s.trim_end_matches('\n').to_string());
                     out.push(record.clone());
+                    buffer.clear();
                     record.clear();
                 }
             },

@@ -12,10 +12,10 @@ fn main() {
         .version(crate_version!())
         .author(crate_authors!())
         .arg(
-            Arg::from_usage("convert -c --convert 'Convert a DSV file into a BadSV file'")
+            Arg::from_usage("ascend -a --ascend 'Ascend from a DSV file into a BadSV file'")
         )
         .arg(
-            Arg::from_usage("regress -r --regress 'Convert a BadSV file into a DSV file (why would you do this)'")
+            Arg::from_usage("regress -r --regress 'Regress from a BadSV file into a DSV file (why would you do this?)'")
         )
         .arg(
             Arg::from_usage("list-encodings -l --list-encodings 'Lists valid BadSV encodings'")
@@ -23,7 +23,7 @@ fn main() {
         .group(
             ArgGroup::with_name("action")
                 .required(true)
-                .args(&["convert", "regress", "list-encodings"])
+                .args(&["ascend", "regress", "list-encodings"])
         )
         .arg(
             Arg::from_usage("encoding -e --encoding=[ENCODING] 'The flavor of BadSV used [Default: utf-8]'")
@@ -48,7 +48,7 @@ fn main() {
             println!("* {}", encoding);
         }
     }
-    else if args.is_present("convert") {
+    else if args.is_present("ascend") {
         if let Some((input, output)) = get_io(&args) {
             if let Some(del) = validate_delimiter(delimiter) {
                 let file = match File::open(input) {
@@ -113,7 +113,7 @@ fn validate_delimiter(delimiter: &str) -> Option<u8> {
 /// Writes to a file (pretty inane documentation, huh)
 fn write(bytes: &[u8], path: &str) {
     let mut options = OpenOptions::new();
-    let mut file = match options.write(true).open(path) {
+    let mut file = match options.write(true).create(true).open(path) {
         Ok(f) => f,
         Err(_) => panic!("Error opening resulting file")
     };

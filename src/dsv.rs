@@ -7,6 +7,7 @@ use std::fs::File;
 pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
     let mut reader = csv::ReaderBuilder::new()
         .delimiter(delimiter)
+        .has_headers(false)
         .flexible(true)
         .from_reader(data);
     let out = reader
