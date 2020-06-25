@@ -4,7 +4,7 @@
 of your data being stored in a readable, compact, and handsome format...*
 
 BaDSV is a family of text-based file formats designed to store values, seperated by delimiters. **BaDSV files are delimited by random invalid byte sequences**,
-defined as a constant-length string of bytes that are impossible at the beginning of a code unit, for a given character encoding.
+defined as a constant-length string of bytes that is not possible at the beginning of a code unit, for a given character encoding.
 
 This following example demonstrates the conversion process between CSV and utf-8-flavored BaDSV files:
 
