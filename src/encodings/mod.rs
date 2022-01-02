@@ -81,10 +81,8 @@ fn compile_with<E: Encoder + Encoding>(data: Vec<Vec<String>>, encoder: E) -> Ve
                 out.extend(encoder.get_delimiter());
             }
         }
-        for _ in 0..(encoder.size() - 1) {
-            out.push(0);
-        }
-        out.push('\n' as u8) // Sorry, Windows users
+        out.extend(vec![0; encoder.size() - 1]);
+        out.push(b'\n') // Sorry, Windows users
     }
     out
 }

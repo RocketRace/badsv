@@ -60,7 +60,7 @@ impl Decoder for Utf8Decoder {
                 let valid = unsafe {
                     String::from_utf8_unchecked(bytes[..until].to_vec())
                 };
-                if let Some(_) = error.error_len() {
+                if error.error_len().is_some() {
                     Err((valid, until))
                 }
                 else {

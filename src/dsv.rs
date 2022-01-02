@@ -1,5 +1,3 @@
-use csv;
-
 use std::fs::File;
 
 /// Parses the contents of a DSV file, and returns 
@@ -13,7 +11,7 @@ pub fn parse(data: File, delimiter: u8) -> Vec<Vec<String>> {
     let out = reader
         .records()
         .map(
-            |r| r.unwrap().iter().map(|s| String::from(s)).collect()
+            |r| r.unwrap().iter().map(String::from).collect()
         )
         .collect::<Vec<Vec<String>>>();
     out
