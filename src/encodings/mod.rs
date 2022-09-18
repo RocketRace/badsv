@@ -1,12 +1,14 @@
 mod utf8;
 mod utf16;
+mod utf32;
 
 use utf8::{ Utf8Decoder, Utf8Encoder };
 use utf16::{ Utf16Decoder, Utf16Encoder };
+use utf32::{ Utf32Decoder, Utf32Encoder };
 use std::fs::File;
 use std::io::Read;
 
-pub const VALID_ENCODINGS: [&str; 2] = ["utf-8", "utf-16"];
+pub const VALID_ENCODINGS: [&str; 3] = ["utf-8", "utf-16", "utf-32"];
 
 /// Result from attempt to decode bytes
 pub type DecodeResult = Result<String, (String, usize)>;
@@ -29,6 +31,7 @@ pub fn parse(data: &mut File, encoding: &str) -> Vec<Vec<String>> {
     match encoding {
         "utf-8" => parse_with(data, Utf8Decoder::new()),
         "utf-16" => parse_with(data, Utf16Decoder::new()),
+        "utf-32" => parse_with(data, Utf32Decoder::new()),
         _ => panic!("Invalid encoding provided")
     }
 }
@@ -67,6 +70,7 @@ pub fn compile(data: Vec<Vec<String>>, encoding: &str) -> Vec<u8> {
     match encoding {
         "utf-8" => compile_with(data, Utf8Encoder::new()),
         "utf-16" => compile_with(data, Utf16Encoder::new()),
+        "utf-32" => compile_with(data, Utf32Encoder::new()),
         _ => panic!("Invalid encoding provided")
     }
 }
