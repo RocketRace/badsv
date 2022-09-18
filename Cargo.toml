@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7"
-clap = "2.33"
+clap = { version = "3.2.22", features = ["cargo"] }
 csv = "1.1"
