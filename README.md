@@ -19,6 +19,7 @@ Several flavors of BaDSV are currently supported, each with their own set of ran
 |--------|----------------|---------------------------------------------------|
 | utf-8  | 1 byte         | `0xc0` ~ `0xc1`, `0xf5` ~ `0xff`, `0x80` ~ `0xbf` |
 | utf-16 | 2 bytes        | `0xd800` ~ `0xdfff`                               |
+| utf-32 | 4 bytes        | `0x110000` ~ `0xffffffff`                         |
 | ???    | A mystery      | Yet to be determined                              |
 
 ## Pros of BaDSV
